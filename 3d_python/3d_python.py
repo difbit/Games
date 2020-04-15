@@ -3,20 +3,34 @@ import pygame
 import sys
 
 
+def rotate_2d(pos, rad):
+    x, y = pos
+    s, c = math.sin(rad), math.cos(rad)
+    return x*c-y*s, y*c+x*s
+
+
 class Cam:
 
     def __init__(self, pos=(0,0,0), rot=(0,0)):
         self.pos = list(pos)
         self.rot = list(rot)
 
+    def events(self, event):
+        if event.type == pygame.MOUSEMOTION:
+            x,y = event.rel
+            x /= 200
+            y /= 200
+
     def update(self, dt, key):
-        s = dt*5
+        s = dt*7
 
         # Y-axis
         if key[pygame.K_q]:
             self.pos[1]-=s
         if key[pygame.K_e]:
             self.pos[1]+=s
+
+        x,y = s*math.sin(self.rot[1]),s*math.cos(self.rot[1])
 
         # Z-axis
         if key[pygame.K_w]:
@@ -36,19 +50,33 @@ cx,cy = w//2,h//2
 screen = pygame.display.set_mode((w,h))
 clock = pygame.time.Clock()
 
-verts = (-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1),
-edges = (0,1),(1,2),(2,3),(3,0),(4,5),(5,6),(6,7),(7,4),(0,4),(1,5),(2,6),(3,7)
+# verts = (-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1),
+# edges = (0,1),(1,2),(2,3),(3,0),(4,5),(5,6),(6,7),(7,4),(0,4),(1,5),(2,6),(3,7)
+verts = (-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1),(-0,-1,3),(2,-1,3),(2,1,3),(-0,1,3)
+edges = (0,1),(1,2),(2,3),(3,0),(4,5),(5,6),(6,7),(7,4),(0,4),(1,5),(2,6),(3,7),(8,9),(9,10),(10,11),(11,8),(4,8),(5,9),(6,10),(7,11)
 cam = Cam(pos=(0,0,-5))
+radian = 0
+
+pygame.event.get()
+pygame.mouse.get_rel()
+pygame.mouse.set_visible(1)
+pygame.event.set_grab(1)
 
 while True:
     dt = clock.tick()/1000
 
+    keys = pygame.key.get_pressed()
+
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == pygame.KEYDOWN:
+            keys = pygame.key.get_pressed()
+
+        if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
             pygame.quit()
             sys.exit()
+        cam.events(event)
 
-    screen.fill((255,255,255))
+    screen.fill((155,255,255))
 
     for edge in edges:
         points = []
@@ -58,6 +86,9 @@ while True:
             x-=cam.pos[0]
             y-=cam.pos[1]
             z-=cam.pos[2]
+
+            x,z = rotate_2d((x,z), cam.rot[1])
+            y,z = rotate_2d((y,z), cam.rot[0])
 
             f = 200/z
             x,y = x*f,y*f
