@@ -9,7 +9,7 @@ FPS = 60
 fps_clock = pygame.time.Clock()
 
 DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN, 32)
-pygame.mouse.set_visible(True)
+pygame.mouse.set_visible(False)
 
 GRAY  = (128, 128, 128)
 BLACK = (  0,   0,   0)
