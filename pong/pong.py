@@ -15,9 +15,12 @@ GRAY  = (128, 128, 128)
 BLACK = (  0,   0,   0)
 SPEED = 25
 BALL_SPEED = 300
-BALL_ANGLE = 170
+BALL_ANGLE = 155
+
 
 def main():
+    SCORE_ONE = 0
+    SCORE_TWO = 0
     elapsed = 0.
     bar_one = Bar(1800, 40, SPEED)
     bar_two = Bar(100, 540, SPEED)
@@ -33,6 +36,11 @@ def main():
             if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
                 pygame.quit()
                 sys.exit()
+
+        FONT_SCORE = pygame.font.Font('freesansbold.ttf', 45)
+        score_surface = FONT_SCORE.render(
+            '%r   %r' % (SCORE_ONE, SCORE_TWO), True, GRAY)
+        DISPLAYSURF.blit(score_surface, (900, 25))
 
         elapsed = fps_clock.tick(FPS)
         sec = elapsed / 1000.0
@@ -57,6 +65,12 @@ def main():
 
         bar_one.draw()
         bar_two.draw()
+        if ball.x < 10:
+            ball.x, ball.y = 1200, 800
+            SCORE_TWO += 1
+        if ball.x > 1900:
+            ball.x, ball.y = 1200, 800
+            SCORE_ONE += 1
         ball.draw()
         pygame.display.update()
 
