@@ -15,12 +15,13 @@ GRAY  = (128, 128, 128)
 BLACK = (  0,   0,   0)
 SPEED = 25
 BALL_SPEED = 300
+BALL_ANGLE = 170
 
 def main():
     elapsed = 0.
     bar_one = Bar(1800, 40, SPEED)
-    bar_two = Bar(100, 40, SPEED)
-    ball = Ball(400, 300, BALL_SPEED, 0, 0, 30)
+    bar_two = Bar(100, 540, SPEED)
+    ball = Ball(1200, 800, BALL_SPEED, 0, 0, BALL_ANGLE)
     while True:
         DISPLAYSURF.fill(BLACK)
 
@@ -35,12 +36,28 @@ def main():
 
         elapsed = fps_clock.tick(FPS)
         sec = elapsed / 1000.0
-        ball.draw()
         ball.play(sec)
         bar_one.play()
         bar_two.move()
+
+        diff_angle = 90 - ball.THETA
+        if (abs(bar_one.x - ball.x) < 7 and
+                (bar_one.y - ball.y) > -130):
+            if ball.vy < 0:
+                ball.THETA += 2 * diff_angle
+            elif ball.vy > 0:
+                ball.THETA += 2 * diff_angle
+
+        if (abs(bar_two.x - ball.x) < 7 and
+                (bar_two.y - ball.y) > -130):
+            if ball.vy < 0:
+                ball.THETA += 2 * diff_angle
+            elif ball.vy > 0:
+                ball.THETA += 2 * diff_angle
+
         bar_one.draw()
         bar_two.draw()
+        ball.draw()
         pygame.display.update()
 
 
@@ -88,21 +105,19 @@ class Ball(object):
         self.vx = self.v * math.cos(self.THETA * math.pi/180)
         self.vy = self.v * math.sin(self.THETA * math.pi/180)
         self.x = self.x + self.vx * sec
-#         self.x = 0.001 * sec
-        self.y = self.y + self.vy * sec
-#         self.y = 0.001 * sec
-#         if self.x >
+        self.y = self.y - self.vy * sec
 
-        if self.y <= 0:
-            self.vy = self.vy
-        elif self.y >= 950:
-            self.vy = -self.vy
-
-        if self.x <= 5:
-            self.vx = self.vx
-        elif self.x >= 950:
-            self.vx = -self.vx
-
+        add_angle = 360 - self.THETA
+        if self.vx > 0:
+            if self.y <= -10 and self.vy > 0:
+                self.THETA += 2 * add_angle
+            elif self.y >= 1070 and self.vy < 0:
+                self.THETA += 2 * add_angle
+        if self.vx < 0:
+            if self.y <= -10 and self.vy > 0:
+                self.THETA += 2 * add_angle
+            elif self.y >= 1070 and self.vy < 0:
+                self.THETA += 2 * add_angle
 
 
 if __name__=='__main__':
