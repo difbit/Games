@@ -49,16 +49,25 @@ def main():
     pygame.time.set_timer(USEREVENT+2, RATE_OF_PARTICLES)
     PARTICLE_STASH = []
     while True:
+        velocities = 0
+        avg_velocity = 0
         checkForKeyPress()
         DISPLAYSURF.fill(BGCOLOR)
 
         generate_particles(PARTICLE_STASH, WIDTH, HEIGHT, SPEED)
 
+        for partic in PARTICLE_STASH:
+            velocities += partic.v
+        if PARTICLE_STASH:
+            avg_velocity = velocities / len(PARTICLE_STASH)
+
         FONT_POSI = pygame.font.Font('freesansbold.ttf', 24)
         show_posi = FONT_POSI.render('Number of particles: %r' % \
         (len(PARTICLE_STASH)), True, GREY)
-
-        DISPLAYSURF.blit(show_posi, (HEIGHT / 2, 15))
+        DISPLAYSURF.blit(show_posi, (WIDTH / 2, 15))
+        show_avg_velo = FONT_POSI.render('Average velocity: %r' % \
+        (avg_velocity), True, GREY)
+        DISPLAYSURF.blit(show_avg_velo, (WIDTH / 2, 35))
 
         fps_clock.tick(FPS)
         pygame.display.update()
