@@ -96,25 +96,19 @@ class Particle(object):
 
         add_angle = 360 - self.THETA
         if self.vx > 0:
-            if self.y <= -2 and self.vy > 0:
-                self.THETA += 2 * add_angle
-            elif self.y >= HEIGHT and self.vy < 0:
+            if (self.y <= -2 and self.vy > 0
+            or self.y >= HEIGHT and self.vy < 0):
                 self.THETA += 2 * add_angle
         if self.vx < 0:
-            if self.y <= -2 and self.vy > 0:
-                self.THETA += 2 * add_angle
-            elif self.y >= HEIGHT and self.vy < 0:
+            if (self.y <= -2 and self.vy > 0
+            or self.y >= HEIGHT and self.vy < 0):
                 self.THETA += 2 * add_angle
 
         if self.x <= 0:
-            if self.vy < 0:
-                self.THETA += 2 * diff_angle
-            elif self.vy > 0:
+            if self.vy < 0 or self.vy > 0:
                 self.THETA += 2 * diff_angle
         if self.x >= DISPLAYSURF.get_width():
-            if self.vy < 0:
-                self.THETA += 2 * diff_angle
-            elif self.vy > 0:
+            if self.vy < 0 or self.vy > 0:
                 self.THETA += 2 * diff_angle
 
 if __name__ == "__main__":
