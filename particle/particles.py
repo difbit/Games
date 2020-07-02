@@ -2,13 +2,20 @@ import pygame, sys
 import random
 from pygame.locals import *
 import math
+import ctypes
+from sys import platform
 
 pygame.init()
 
 FPS = 60
 fps_clock = pygame.time.Clock()
+true_res = (0, 0)
 
-DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN, 32)
+# A hack for windows screens
+if platform == "win32":
+    ctypes.windll.user32.SetProcessDPIAware()
+    true_res = (ctypes.windll.user32.GetSystemMetrics(0),ctypes.windll.user32.GetSystemMetrics(1))
+DISPLAYSURF = pygame.display.set_mode(true_res, pygame.FULLSCREEN)
 pygame.display.set_caption('Particles')
 pygame.mouse.set_visible(False)
 
