@@ -17,8 +17,8 @@ BGCOLOR = (0, 0,  0)
 GREEN   = (100, 170,  38)
 GREY    = (128, 128, 128)
 
-energy_loss = False
-e_amount = 100
+energy_loss = True
+e_amount = 10
 HEIGHT = DISPLAYSURF.get_height()
 WIDTH = DISPLAYSURF.get_width()
 SPEED = 200
@@ -45,47 +45,42 @@ def checkForKeyPress():
 def random_angle():
     return random.choice(range(1, 361, 2))
 
-def random_number():
-    return random.choice((2, -2))
-
 def main():
     pygame.time.set_timer(USEREVENT+2, RATE_OF_PARTICLES)
     PARTICLE_STASH = []
-    for i in range(0, 2, 2):
-        PARTICLE_STASH.append(Particle(
-            int(WIDTH / 2),
-            int(HEIGHT / 2),
-            SPEED,
-            random_angle(),
-            get_color()
-            ))
-
     while True:
         checkForKeyPress()
         DISPLAYSURF.fill(BGCOLOR)
-        for event in pygame.event.get():
-            if event.type == USEREVENT+2:
-                PARTICLE_STASH.append(Particle(
-                    int(WIDTH / 2),
-                    int(HEIGHT / 2),
-                    SPEED,
-                    random_angle(),
-                    get_color()
-                    ))
+
+        generate_particles(PARTICLE_STASH, WIDTH, HEIGHT, SPEED)
+
         FONT_POSI = pygame.font.Font('freesansbold.ttf', 24)
         show_posi = FONT_POSI.render('Number of particles: %r' % \
         (len(PARTICLE_STASH)), True, GREY)
 
         DISPLAYSURF.blit(show_posi, (HEIGHT / 2, 15))
 
-        elapsed = fps_clock.tick(FPS)
-        sec = elapsed / 1000.0
-
-        for partic in PARTICLE_STASH:
-            partic.move(sec)
-            partic.draw()
         fps_clock.tick(FPS)
         pygame.display.update()
+
+def generate_particles(stash, width, height, speed):
+    for event in pygame.event.get():
+        if event.type == USEREVENT+2:
+            stash.append(Particle(
+                int(width / 2),
+                int(height / 2),
+                speed,
+                random_angle(),
+                get_color()
+                ))
+
+    fps_clock = pygame.time.Clock()
+    elapsed = fps_clock.tick(60)
+    sec = elapsed / 1000.0
+
+    for partic in stash:
+        partic.move(sec)
+        partic.draw()
 
 
 class Particle(object):
