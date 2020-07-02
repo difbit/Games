@@ -5,7 +5,7 @@ import math
 
 pygame.init()
 
-FPS = 30
+FPS = 60
 fps_clock = pygame.time.Clock()
 
 DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN, 32)
@@ -14,17 +14,20 @@ pygame.mouse.set_visible(False)
 DEBUG_MODE = False
 GRAY  = (128, 128, 128)
 BLACK = (  0,   0,   0)
-SPEED = 25
-BALL_SPEED = 300
-BALL_ANGLE = 155
+SPEED = 13
+COMP_SPEED = 12
+BALL_SPEED = 900
 
 def main():
+    FIRST_GAME = True
     SCORE_ONE = 0
     SCORE_TWO = 0
     elapsed = 0.
     bar_one = Bar(DISPLAYSURF.get_width() - 100, 540, SPEED)
-    bar_two = Bar(100, 540, SPEED)
-    ball = Ball(DISPLAYSURF.get_width() / 2, 800, BALL_SPEED, 0, 0, BALL_ANGLE)
+    bar_two = Bar(75, 540, COMP_SPEED)
+    # A silly ad hoc fix to score bug
+    BALL_ANGLE = 180
+    ball = Ball(DISPLAYSURF.get_width()/2, 600, BALL_SPEED, 0, 0, BALL_ANGLE)
     while True:
         DISPLAYSURF.fill(BLACK)
 
@@ -37,16 +40,7 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-        FONT_SCORE = pygame.font.Font('freesansbold.ttf', 45)
-        score_surface = FONT_SCORE.render(
-            '%r   %r' % (SCORE_ONE, SCORE_TWO), True, GRAY)
-        DISPLAYSURF.blit(score_surface, (DISPLAYSURF.get_width() / 2 - 55, 25))
-
-        elapsed = fps_clock.tick(FPS)
-        sec = elapsed / 1000.0
-        ball.play(sec)
         bar_one.play()
-        bar_two.move()
 
         diff_angle = 90 - ball.THETA
         if DEBUG_MODE:
@@ -80,15 +74,39 @@ def main():
             elif ball.vy > 0:
                 ball.THETA += 2 * diff_angle
 
+        # This movement works good enough.
+        # The main problem before was the jerky movement
+        if (ball.y - bar_two.y) > 100:
+            bar_two.y += bar_two.v
+        elif (ball.y - bar_two.y) < 30:
+            bar_two.y -= bar_two.v
+
         bar_one.draw()
         bar_two.draw()
         if ball.x < 10:
-            ball.x, ball.y = DISPLAYSURF.get_width() / 2, 800
+            ball.x, ball.y = DISPLAYSURF.get_width() / 2, 600
+            ball.THETA = random.choice(list(range(20, 45)) + list(range(125, 171)))
             SCORE_TWO += 1
         if ball.x > DISPLAYSURF.get_width():
-            ball.x, ball.y = DISPLAYSURF.get_width() / 2, 800
+            ball.x, ball.y = DISPLAYSURF.get_width() / 2, 600
+            ball.THETA = random.choice(list(range(20, 45)) + list(range(125, 171)))
             SCORE_ONE += 1
+
+        if FIRST_GAME:
+            pygame.time.wait(1000)
+            FIRST_GAME = False
+        FONT_SCORE = pygame.font.Font('freesansbold.ttf', 45)
+        # SCORE_TWO -1 is an ugly fix to scoring system
+        # But the ball has already gone over the line before the game starts
+        score_surface = FONT_SCORE.render(
+            '%r   %r' % (SCORE_ONE, SCORE_TWO - 1), True, GRAY)
+        DISPLAYSURF.blit(score_surface, (DISPLAYSURF.get_width() / 2 - 55, 25))
+
+        elapsed = fps_clock.tick(FPS)
+        sec = elapsed / 1000.0
+        ball.play(sec)
         ball.draw()
+
         pygame.display.update()
 
 
@@ -104,6 +122,7 @@ class Bar(object):
             DISPLAYSURF, GRAY, ((self.x, self.y, 15, 130))
         )
 
+    # Old method and it is not being used atm
     def move(self):
         self.y += self.v
         if self.y <= 0:
@@ -151,5 +170,5 @@ class Ball(object):
                 self.THETA += 2 * add_angle
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
