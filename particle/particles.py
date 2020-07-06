@@ -56,17 +56,12 @@ def main():
     pygame.time.set_timer(USEREVENT+2, RATE_OF_PARTICLES)
     PARTICLE_STASH = []
     while True:
-        velocities = 0
         avg_velocity = 0
         checkForKeyPress()
         DISPLAYSURF.fill(BGCOLOR)
 
-        generate_particles(PARTICLE_STASH, WIDTH, HEIGHT, SPEED)
-
-        for partic in PARTICLE_STASH:
-            velocities += partic.v
-        if PARTICLE_STASH:
-            avg_velocity = velocities / len(PARTICLE_STASH)
+        avg_velocity = generate_info_particles(
+            PARTICLE_STASH, WIDTH, HEIGHT, SPEED)
 
         FONT_POSI = pygame.font.Font('freesansbold.ttf', 24)
         show_posi = FONT_POSI.render('Number of particles: %r' % \
@@ -79,7 +74,40 @@ def main():
         fps_clock.tick(FPS)
         pygame.display.update()
 
+
+def generate_info_particles(stash, width, height, speed):
+    """Creates particles and gives info about them"""
+    velocities = 0
+    avg_velocity = 0
+
+    for event in pygame.event.get():
+        if event.type == USEREVENT+2:
+            stash.append(Particle(
+                int(width / 2),
+                int(height / 2),
+                speed,
+                random_angle(),
+                get_color()
+                ))
+
+    fps_clock = pygame.time.Clock()
+    elapsed = fps_clock.tick(60)
+    sec = elapsed / 1000.0
+
+    for partic in stash:
+        velocities += partic.v
+        partic.move(sec)
+        partic.draw()
+
+    if stash:
+        avg_velocity = velocities / len(stash)
+        return avg_velocity
+    else:
+        return 0
+
+
 def generate_particles(stash, width, height, speed):
+    """General particle creator"""
     for event in pygame.event.get():
         if event.type == USEREVENT+2:
             stash.append(Particle(
