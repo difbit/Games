@@ -54,13 +54,10 @@ CAT_MOVES = (
             RIGHT_CAT,
             )
 
-WINNER = False
-
-
 def main():
     while True:
         # Main game loop
-        game()
+        WINNER = game()
         if WINNER:
             you_win_screen()
         else:
@@ -68,6 +65,7 @@ def main():
 
 
 def game():
+    WINNER = False
     # Create three cats and one mouse
     cat_1 = game_cat(200, 200, RIGHT_CAT, 1, GREEN)
     cat_2 = game_cat(400, 400, DOWN_CAT, 1, GREEN)
@@ -173,9 +171,8 @@ def game():
                 pass
 
         if SCORE >= 25:
-            global WINNER
             WINNER = True
-            return
+            return WINNER
 
         FONT_SCORE = pygame.font.Font('freesansbold.ttf', 25)
         score_surface = FONT_SCORE.render('Score: %r' % SCORE, True, BLACK)
@@ -188,7 +185,7 @@ def game():
             or ((abs(mouse.x_coord  - fast_cat.catx) < 50 and
                 abs(mouse.y_coord - fast_cat.caty) < 50)
                 and SPEED_CAT):
-            return
+            return WINNER
 
         # New value from cosine list
         animation()
