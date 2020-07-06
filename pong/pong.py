@@ -2,13 +2,21 @@ import pygame, sys
 from pygame.locals import *
 import random
 import math
+import ctypes
+from sys import platform
 
 pygame.init()
 
 FPS = 60
 fps_clock = pygame.time.Clock()
+true_res = (0, 0)
 
-DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN, 32)
+# A hack for windows screens
+if platform == "win32":
+    ctypes.windll.user32.SetProcessDPIAware()
+    true_res = (ctypes.windll.user32.GetSystemMetrics(0),ctypes.windll.user32.GetSystemMetrics(1))
+
+DISPLAYSURF = pygame.display.set_mode(true_res, pygame.FULLSCREEN, 32)
 pygame.mouse.set_visible(False)
 
 DEBUG_MODE = False
