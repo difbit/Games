@@ -24,12 +24,50 @@ BGCOLOR = (0, 0,  0)
 GREEN   = (100, 170,  38)
 GREY    = (128, 128, 128)
 
+mass = 0
+M = 0 # g/mol, molar mass
+hydrogen = True
+if hydrogen:
+    M = 1.008 # g/mol
 energy_loss = True
 e_amount = 10
 HEIGHT = DISPLAYSURF.get_height()
 WIDTH = DISPLAYSURF.get_width()
 SPEED = 200
-RATE_OF_PARTICLES = 100
+RATE_OF_PARTICLES = 1000
+# Boltzmann's constant
+k = 1.3805 * 10**(-23) # J/K
+# Avogadro's constant
+N_a = 6.022 * 10**23 # l/mol
+mass = M / N_a
+
+"""
+Formula for mass is derived from amount of substance, n:
+
+    n = N / N_a     , where N = amount of particles
+
+    n = m / M       , where m = mass and M = molar mass
+
+So we get:
+
+    N / N_a = m / M
+
+Thus mass can be calculated by this formula:
+
+    m = (N * M) / N_a
+
+For one particle N = 1:
+
+    m = M / N_a
+
+Formula for temperature can be derived from this known formula:
+
+    E_k = (3 / 2) * k * T       , where T = temperature and E_k is the
+                                  average kinetic energy of particles
+    T = (2 / 3) * (E_k / k)
+
+Kinetic energy of one particle is the good old E = (1 / 2) * m * v**2
+"""
 
 def get_color():
     first = random.choice(range(50, 225))
@@ -60,16 +98,22 @@ def main():
         checkForKeyPress()
         DISPLAYSURF.fill(BGCOLOR)
 
-        avg_velocity = generate_info_particles(
+        p_info = generate_info_particles(
             PARTICLE_STASH, WIDTH, HEIGHT, SPEED)
 
         FONT_POSI = pygame.font.Font('freesansbold.ttf', 24)
         show_posi = FONT_POSI.render('Number of particles: %r' % \
         (len(PARTICLE_STASH)), True, GREY)
         DISPLAYSURF.blit(show_posi, (WIDTH / 2, 15))
-        show_avg_velo = FONT_POSI.render('Average velocity: %r' % \
-        (avg_velocity), True, GREY)
+        show_avg_velo = FONT_POSI.render('Average velocity: %r m/s' % \
+        (p_info[0]), True, GREY)
         DISPLAYSURF.blit(show_avg_velo, (WIDTH / 2, 35))
+        show_avg_kinet = FONT_POSI.render('Average kinetic energy: %r J' % \
+        (p_info[1]), True, GREY)
+        DISPLAYSURF.blit(show_avg_kinet, (WIDTH / 2, 55))
+        show_temperature = FONT_POSI.render('Temperature: %r K' % \
+        (p_info[2]), True, GREY)
+        DISPLAYSURF.blit(show_temperature, (WIDTH / 2, 75))
 
         fps_clock.tick(FPS)
         pygame.display.update()
@@ -79,6 +123,8 @@ def generate_info_particles(stash, width, height, speed):
     """Creates particles and gives info about them"""
     velocities = 0
     avg_velocity = 0
+    avg_kinetic = 0
+    temperature = 0
 
     for event in pygame.event.get():
         if event.type == USEREVENT+2:
@@ -101,9 +147,10 @@ def generate_info_particles(stash, width, height, speed):
 
     if stash:
         avg_velocity = velocities / len(stash)
-        return avg_velocity
-    else:
-        return 0
+        # Average kinetic energy
+        avg_kinetic = (1 / 2) * mass * avg_velocity**2
+        temperature = (2 / 3) * (avg_kinetic / k)
+    return avg_velocity, float(avg_kinetic), float(temperature)
 
 
 def generate_particles(stash, width, height, speed):
