@@ -2,6 +2,8 @@ import math
 import pygame
 import sys
 
+BLACK = (0, 0, 0)
+
 
 def rotate_2d(pos, rad):
     x, y = pos
@@ -49,13 +51,13 @@ class Cam:
 pygame.init()
 w,h = 400,400
 cx,cy = w//2,h//2
-screen = pygame.display.set_mode((w,h))
+DISPLAYSURF = pygame.display.set_mode((w,h))
 clock = pygame.time.Clock()
 
 # verts = (-1,-1,-1),(1,-1,-1),(1,1,-1),(-1,1,-1),(-1,-1,1),(1,-1,1),(1,1,1),(-1,1,1),
 # edges = (0,1),(1,2),(2,3),(3,0),(4,5),(5,6),(6,7),(7,4),(0,4),(1,5),(2,6),(3,7)
-verts = (-1,-1,-4),(1,-1,-4),(1, 1,-4),(-1, 1,-4),(-1,-1, 1),(1,-1, 1),(1, 1, 1),(-1, 1, 1),\
-        (-0,-1, 3),(2,-1, 3),(2, 1, 3),(-0, 1, 3),(-0,-1, 5),(2,-1, 5),(2, 1, 5),(-0, 1, 5),\
+verts = (-1,-1,-0),(1,-1,-0),(1, 1,-0),(-1, 1,-0),(-1,-1, 1),(1,-1, 1),(1, 1, 1),(-1, 1, 1),\
+        (-0,-1, 2),(2,-1, 2),(2, 1, 2),(-0, 1, 2),(-0,-1, 5),(2,-1, 5),(2, 1, 5),(-0, 1, 5),\
         ( 2,-1, 3),(2,-1, 5),(2, 1, 5),( 2, 1, 3),\
         ( 4,-1, 3),(4,-1, 5),(4, 1, 5),( 4, 1, 3),#( 2,-1, 5),(4,-1, 5),(4, 1, 5),( 2, 1, 5)
         #( 2,-1, 5),(2,-1, 5),(2, 1, 5),( 2, 1, 5),
@@ -64,7 +66,7 @@ edges = ( 0, 1),( 1, 2),( 2, 3),( 3, 0),( 4, 5),( 5, 6),( 6, 7),( 7, 4),\
         ( 4, 8),( 5, 9),( 6,10),( 7,11),(12,13),(13,14),(14,15),(15,12),\
         ( 8,12),( 9,13),(10,14),(11,15),(16,17),(17,18),(18,19),(19,16),\
         (14,19),(14,18),(15,19),(16,20),(20,21),(21,22),(22,23),(23,20),
-cam = Cam(pos=(0,0,-5))
+cam = Cam(pos=(0,0,-3))
 radian = 0
 
 pygame.event.get()
@@ -86,13 +88,18 @@ while True:
             sys.exit()
         cam.events(event)
 
-    screen.fill((155,255,255))
+    DISPLAYSURF.fill((155,255,255))
+
+    font_cam = pygame.font.Font('freesansbold.ttf', 20)
 
     for edge in edges:
         points = []
 
         # First one is x, second one is y
         for x,y,z in (verts[edge[0]],verts[edge[1]]):
+            if cam.pos[2] > z:
+                continue
+
             x-=cam.pos[0]
             y-=cam.pos[1]
             z-=cam.pos[2]
@@ -103,10 +110,21 @@ while True:
             f = 200/z
             x,y = x*f,y*f
             points+=[(cx+int(x),cy+int(y))]
-        pygame.draw.line(screen, (0,0,0),points[0],points[1],1)
-        # One circle is drawn at a time
-        # (0,0,255) means blue colour
-        pygame.draw.circle(screen, (0,0,255), (cx+int(x),cy+int(y)),5)
+        cam_render = font_cam.render('Cam x position: %d' % cam.pos[0],
+                True, BLACK)
+        DISPLAYSURF.blit(cam_render, (85, 35))
+        cam_render = font_cam.render('Cam y position: %d' % cam.pos[1],
+                True, BLACK)
+        DISPLAYSURF.blit(cam_render, (85, 55))
+        cam_render = font_cam.render('Cam z position: %d' % cam.pos[2],
+                True, BLACK)
+        DISPLAYSURF.blit(cam_render, (85, 75))
+
+        if len(points) > 1:
+            pygame.draw.line(DISPLAYSURF, (0,0,0),points[0],points[1],1)
+            # One circle is drawn at a time
+            # (0,0,255) means blue colour
+            pygame.draw.circle(DISPLAYSURF, (0,0,255), (cx+int(x),cy+int(y)),5)
 
     pygame.display.flip()
     key = pygame.key.get_pressed()
