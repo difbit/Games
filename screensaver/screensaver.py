@@ -2,11 +2,19 @@ import pygame, sys
 from pygame.locals import *
 import random
 import time
+import ctypes
+from sys import platform
 
 pygame.init()
 
 FPS = 90
 fps_clock = pygame.time.Clock()
+
+# A hack for windows screens
+true_res = (0, 0)
+if platform == "win32":
+    ctypes.windll.user32.SetProcessDPIAware()
+    true_res = (ctypes.windll.user32.GetSystemMetrics(0),ctypes.windll.user32.GetSystemMetrics(1))
 
 DISPLAYSURF = pygame.display.set_mode((0, 0), pygame.FULLSCREEN, 32)
 pygame.mouse.set_visible(False)
@@ -16,7 +24,7 @@ BLACK = (  0,   0,   0)
 
 def stars():
     letter = random.choice(["1","2","3"])
-    index = random.randint(1,160)
+    index = random.randint(1,240)
     return letter,index
 
 def check_for_key_presses():
@@ -39,14 +47,11 @@ class DisplayText(object):
         DISPLAYSURF.blit(string_rendered, (0, self.y))
 
     def move(self):
-        if self.y == 700 or self.y == 701:
+        if self.y == 1070 or self.y == 1071:
             self.y = 2
             self.string = text_generator()
         else:
             self.y += 2
-
-    #def move_up(self):
-    #    self.y -= 1
 
 def text_generator():
     junk = []
@@ -61,7 +66,7 @@ def text_generator():
 
 def main():
     TEXT_LIST = []
-    for i in range(2, 702, 14):
+    for i in range(2, 1002, 14):
         TEXT_LIST.append(DisplayText(i, text_generator()))
     TEXT_LIST[0].draw()
     while True:
